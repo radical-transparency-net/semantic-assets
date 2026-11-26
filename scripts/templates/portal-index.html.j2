@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radical Transparency — Semantic Assets</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <style>
+    :root {
+      --bg: #f8f9ff;
+      --surface: #ffffff;
+      --ink: #0b1c30;
+      --muted: #45464d;
+      --border: #d3e4fe;
+      --accent: #0051d5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    header img { width: 68px; height: 68px; flex-shrink: 0; }
+    h1 { margin: 0 0 0.25rem 0; font-size: 1.65rem; letter-spacing: -0.02em; }
+    .meta { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    code {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.85rem;
+      background: #eff4ff;
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.85rem;
+    }
+    .pill {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #eff4ff;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.84rem;
+    }
+    .pill:hover { background: #dbe1ff; }
+    .tag {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.74rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: #eff4ff;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="assets/rt-logo.svg" alt="Radical Transparency Network" width="68" height="68" />
+      <div>
+        <h1>Radical Transparency — Semantic Assets</h1>
+        <p class="meta">
+          Canonical RDF vocabularies, JSON-LD serializations, RFC 9264 content-negotiation linksets (RT-P03), and ResourceSync discovery sitemaps (RT-P06).
+        </p>
+      </div>
+    </header>
+
+    {%- for vocab in vocabs %}
+    <section class="card">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.75rem;">
+        <h2 style="margin: 0;"><a href="{{ vocab.slug }}/" style="color: inherit; text-decoration: none;">{{ vocab.title }}{% if '(' + vocab.prefix + ')' not in vocab.title %} (<code>{{ vocab.prefix }}:</code>){% endif %}</a></h2>
+        <span class="tag">{{ vocab.version }}</span>
+      </div>
+      <p style="margin: 0.5rem 0; font-size: 0.9rem; color: var(--muted);">
+        Namespace: <code>{{ vocab.namespace_uri }}</code>
+      </p>
+      <p>{{ vocab.description }}</p>
+      <div class="pill-row">
+        <a class="pill" href="{{ vocab.slug }}/">HTML Documentation</a>
+        <a class="pill" href="{{ vocab.slug }}/{{ vocab.slug }}.ttl">Turtle</a>
+        <a class="pill" href="{{ vocab.slug }}/{{ vocab.slug }}.jsonld">JSON-LD</a>
+        <a class="pill" href="{{ vocab.slug }}/{{ vocab.slug }}.linkset.json">Linkset JSON (RT-P03)</a>
+        <a class="pill" href="{{ vocab.slug }}/{{ vocab.slug }}.linkset">Linkset Text (RT-P03)</a>
+      </div>
+    </section>
+    {%- endfor %}
+
+    <section class="card">
+      <h2>Hostwide Discovery (RT-P06)</h2>
+      <p>
+        Machine harvesters can discover all vocabularies and their RT-P03 content-negotiation linksets via the ResourceSync-annotated sitemap <a href="sitemap-semantic-assets.xml"><code>sitemap-semantic-assets.xml</code></a>.
+      </p>
+      <div class="pill-row">
+        <a class="pill" href="sitemap-semantic-assets.xml">sitemap-semantic-assets.xml</a>
+        <a class="pill" href="https://github.com/radical-transparency-net/semantic-assets">GitHub Repository</a>
+        <a class="pill" href="https://radical-transparency.net/spec-linkset-usage-patterns/">RT Linkset Usage Patterns</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

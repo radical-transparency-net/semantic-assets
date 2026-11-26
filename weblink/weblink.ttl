@@ -2,7 +2,7 @@
 # Radical Transparency Web Linking Vocabulary (rtwl) — Draft 0.1.0
 # =============================================================================
 # Canonical Namespace URI: https://w3id.org/rt/ns/weblink#
-# Human Documentation:     https://radical-transparency-net.github.io/semantic-assets/weblink/
+# Human Documentation:     https://radical-transparency.net/semantic-assets/weblink/
 # =============================================================================
 
 @prefix rtwl:    <https://w3id.org/rt/ns/weblink#> .
@@ -35,7 +35,7 @@
     rdfs:seeAlso
         <https://www.rfc-editor.org/info/rfc8288> ,
         <https://www.rfc-editor.org/info/rfc9264> ,
-        <https://radical-transparency-net.github.io/spec-linkset-usage-patterns/> .
+        <https://radical-transparency.net/spec-linkset-usage-patterns/> .
 
 
 # -----------------------------------------------------------------------------

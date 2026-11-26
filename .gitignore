@@ -6,3 +6,11 @@ Thumbs.db
 *.tmp
 .agents/local/**
 .agents/rules/local-*
+
+# Generated semantic-assets build outputs (built by `make all` and GitHub Actions)
+/index.html
+/sitemap-semantic-assets.xml
+/*/*.jsonld
+/*/*.linkset
+/*/*.linkset.json
+/*/index.html

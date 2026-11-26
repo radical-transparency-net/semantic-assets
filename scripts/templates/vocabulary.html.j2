@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ vocab.title }} ({{ vocab.prefix }}:) — {{ vocab.version }}</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <!-- RT-P03 self-describing identity anchor, alternates, and variant menu linksets -->
+  <link rel="self" href="{{ vocab.concept_uri }}" />
+  <link rel="alternate" type="text/turtle" href="{{ vocab.slug }}.ttl" title="Turtle serialization" />
+  <link rel="alternate" type="application/ld+json" href="{{ vocab.slug }}.jsonld" title="JSON-LD serialization" />
+  <link rel="linkset" type="application/linkset+json" href="{{ vocab.slug }}.linkset.json" title="RT-P03 Content Negotiation Menu (JSON)" />
+  <link rel="linkset" type="application/linkset" href="{{ vocab.slug }}.linkset" title="RT-P03 Content Negotiation Menu (Text)" />
+  <style>
+    :root {
+      --bg: #f8f9ff;
+      --surface: #ffffff;
+      --ink: #0b1c30;
+      --muted: #45464d;
+      --border: #d3e4fe;
+      --accent: #0051d5;
+      --note-bg: #eff4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    header img { width: 68px; height: 68px; flex-shrink: 0; }
+    h1 { margin: 0 0 0.25rem 0; font-size: 1.65rem; letter-spacing: -0.02em; }
+    .meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    code, pre {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.86rem;
+    }
+    code {
+      background: #eff4ff;
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+    }
+    pre {
+      background: #0b1c30;
+      color: #eaf1ff;
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+    .pill {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #eff4ff;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.84rem;
+    }
+    .pill:hover { background: #dbe1ff; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.6rem 0.7rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th { background: #eff4ff; font-weight: 700; }
+    .term {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    .term:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+    .term h3 {
+      margin: 0 0 0.35rem 0;
+      font-size: 1.05rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tag {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.72rem;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      background: #eff4ff;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .tag.draft { background: #fff4e5; color: #8a4b00; border-color: #f3d19e; }
+    .note {
+      background: var(--note-bg);
+      border-left: 4px solid var(--accent);
+      padding: 0.85rem 1.1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      margin-top: 0.85rem;
+    }
+    .breadcrumb {
+      font-size: 0.82rem;
+      margin-bottom: 0.35rem;
+    }
+    .breadcrumb a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a href="../"><img src="../assets/rt-logo.svg" alt="Radical Transparency Network" width="68" height="68" /></a>
+      <div>
+        <div class="breadcrumb"><a href="../">Radical Transparency Semantic Assets</a> / <code>{{ vocab.slug }}/</code></div>
+        <h1>{{ vocab.title }}{% if '(' + vocab.prefix + ')' not in vocab.title %} (<code>{{ vocab.prefix }}:</code>){% endif %}</h1>
+        <p class="meta">
+          Version <code>{{ vocab.version }}</code>
+          · Namespace: <code>{{ vocab.namespace_uri }}</code>
+          {%- if vocab.modified %} · Updated: <code>{{ vocab.modified }}</code>{% endif %}
+          {%- if vocab.license_label %} · License: <a href="{{ vocab.license_uri }}">{{ vocab.license_label }}</a>{% endif %}
+        </p>
+        <div class="pill-row">
+          <a class="pill" href="{{ vocab.slug }}.ttl">Turtle ({{ vocab.slug }}.ttl)</a>
+          <a class="pill" href="{{ vocab.slug }}.jsonld">JSON-LD ({{ vocab.slug }}.jsonld)</a>
+          <a class="pill" href="{{ vocab.slug }}.linkset.json">Linkset JSON (RT-P03)</a>
+          <a class="pill" href="{{ vocab.slug }}.linkset">Linkset Text (RT-P03)</a>
+          {%- for ex in vocab.examples %}
+          <a class="pill" href="{{ ex.rel_path }}">Example ({{ ex.filename }})</a>
+          {%- endfor %}
+          {%- for ref in vocab.see_also %}
+          {%- if "spec-linkset-usage-patterns" in ref %}
+          <a class="pill" href="{{ ref }}">RT Linkset Usage Patterns</a>
+          {%- endif %}
+          {%- endfor %}
+        </div>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Overview</h2>
+      <p>{{ vocab.description }}</p>
+      <p>
+        Following <strong>RT-P03 (Content Negotiation Menu)</strong>, the persistent namespace URI <code>{{ vocab.concept_uri }}</code> exposes an explicit <a href="{{ vocab.slug }}.linkset.json">JSON linkset</a> and <a href="{{ vocab.slug }}.linkset">text linkset</a> listing all available serializations and preserving <code>rel="self"</code> identity backlinks across redirects.
+      </p>
+      {%- if vocab.editorial_notes %}
+      <div class="note">
+        <strong>Editorial &amp; Design Review Notes (from <code>skos:editorialNote</code>):</strong>
+        <ul style="margin: 0.4rem 0 0 1.2rem; padding: 0;">
+          {%- for item in vocab.editorial_notes %}
+          <li><a href="#{{ item.local_name }}"><code>{{ item.qname }}</code></a>: {{ item.note }}</li>
+          {%- endfor %}
+        </ul>
+      </div>
+      {%- endif %}
+    </section>
+
+    <section class="card">
+      <h2>Vocabulary Summary</h2>
+      <table>
+        <thead>
+          <tr><th>Term</th><th>Kind</th><th>Domain &rarr; Range</th><th>Summary</th></tr>
+        </thead>
+        <tbody>
+          {%- for cls in vocab.classes %}
+          <tr>
+            <td><a href="#{{ cls.local_name }}"><code>{{ cls.qname }}</code></a></td>
+            <td>Class{% if cls.is_draft %} (draft){% endif %}</td>
+            <td>&mdash;</td>
+            <td>{{ cls.comment }}</td>
+          </tr>
+          {%- endfor %}
+          {%- for prop in vocab.properties %}
+          <tr>
+            <td><a href="#{{ prop.local_name }}"><code>{{ prop.qname }}</code></a></td>
+            <td>{{ prop.kind_short }}{% if prop.is_draft %} (draft){% endif %}</td>
+            <td><code>{{ prop.domain_short }}</code> &rarr; <code>{{ prop.range_short }}</code></td>
+            <td>{{ prop.comment }}</td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Classes</h2>
+      {%- for cls in vocab.classes %}
+      <div class="term" id="{{ cls.local_name }}">
+        <h3>
+          <code>{{ cls.qname }}</code>
+          <span class="tag">{{ cls.kind_tag }}</span>
+          {%- if cls.is_draft %}<span class="tag draft">draft candidate</span>{% endif %}
+        </h3>
+        <p>{{ cls.comment }}</p>
+        {%- if cls.scope_note %}
+        <p style="font-size: 0.9rem; color: var(--muted);"><strong>Scope note:</strong> {{ cls.scope_note }}</p>
+        {%- endif %}
+        {%- if cls.editorial_note %}
+        <p style="font-size: 0.9rem; color: var(--muted);"><strong>Editorial note:</strong> {{ cls.editorial_note }}</p>
+        {%- endif %}
+      </div>
+      {%- endfor %}
+    </section>
+
+    <section class="card">
+      <h2>Properties</h2>
+      {%- for prop in vocab.properties %}
+      <div class="term" id="{{ prop.local_name }}">
+        <h3>
+          <code>{{ prop.qname }}</code>
+          <span class="tag">{{ prop.kind_tag }}</span>
+          {%- if prop.is_draft %}<span class="tag draft">draft candidate</span>{% endif %}
+        </h3>
+        <p>Domain: <code>{{ prop.domain_short }}</code> · Range: <code>{{ prop.range_short }}</code></p>
+        <p>{{ prop.comment }}</p>
+        {%- if prop.editorial_note %}
+        <p style="font-size: 0.9rem; color: var(--muted);"><strong>Editorial note:</strong> {{ prop.editorial_note }}</p>
+        {%- endif %}
+      </div>
+      {%- endfor %}
+    </section>
+
+    {%- if vocab.examples %}
+    <section class="card">
+      <h2>Examples</h2>
+      {%- for ex in vocab.examples %}
+      <h3><a href="{{ ex.rel_path }}"><code>{{ ex.rel_path }}</code></a></h3>
+      <pre>{{ ex.content }}</pre>
+      {%- endfor %}
+    </section>
+    {%- endif %}
+  </div>
+</body>
+</html>
