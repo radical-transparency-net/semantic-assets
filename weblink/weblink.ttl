@@ -1,0 +1,135 @@
+# =============================================================================
+# Radical Transparency Web Linking Vocabulary (rtwl) — Draft 0.1.0
+# =============================================================================
+# Canonical Namespace URI: https://w3id.org/rt/ns/weblink#
+# Human Documentation:     https://radical-transparency-net.github.io/semantic-assets/weblink/
+# =============================================================================
+
+@prefix rtwl:    <https://w3id.org/rt/ns/weblink#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix vann:    <http://purl.org/vocab/vann/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+
+# -----------------------------------------------------------------------------
+# Ontology Metadata
+# -----------------------------------------------------------------------------
+
+<https://w3id.org/rt/ns/weblink>
+    a owl:Ontology ;
+    dcterms:title "Radical Transparency Web Linking Vocabulary (rtwl)"@en ;
+    dcterms:description "A lightweight RDF reification vocabulary for factually recording observed RFC 8288 Web Links and RFC 9264 Linksets—capturing anchor, link relation, target URI, and arbitrary target attributes—without inventing non-existent terms under existing W3C namespaces."@en ;
+    dcterms:creator <https://orcid.org/0000-0002-9648-6484> ;
+    dcterms:contributor <https://orcid.org/0000-0001-6387-5988> ;
+    dcterms:publisher <https://radical-transparency.net/> ;
+    dcterms:created "2026-11-25"^^xsd:date ;
+    dcterms:modified "2026-11-25"^^xsd:date ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    owl:versionInfo "0.1.0-draft" ;
+    vann:preferredNamespacePrefix "rtwl" ;
+    vann:preferredNamespaceUri "https://w3id.org/rt/ns/weblink#" ;
+    rdfs:seeAlso
+        <https://www.rfc-editor.org/info/rfc8288> ,
+        <https://www.rfc-editor.org/info/rfc9264> ,
+        <https://radical-transparency-net.github.io/spec-linkset-usage-patterns/> .
+
+
+# -----------------------------------------------------------------------------
+# Classes
+# -----------------------------------------------------------------------------
+
+rtwl:WebLink
+    a rdfs:Class, owl:Class ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "Web Link"@en ;
+    rdfs:comment "A reified representation of an observed typed web link as defined by RFC 8288 (anchor, link relation, target URI, and optional target attributes)."@en ;
+    skos:scopeNote "Use rtwl:WebLink when preserving target attributes (such as type, profile, hreflang, or title) or when decoupling raw link observation from downstream semantic entailments (e.g., dcterms:conformsTo)."@en .
+
+rtwl:TargetAttribute
+    a rdfs:Class, owl:Class ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "Target Attribute"@en ;
+    rdfs:comment "A key-value attribute qualifying a reified rtwl:WebLink target, corresponding to an RFC 8288 Section 3.4 link-param (e.g., type, profile, hreflang, media, title)."@en .
+
+rtwl:Linkset
+    a rdfs:Class, owl:Class ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "Linkset"@en ;
+    rdfs:comment "A collection of reified rtwl:WebLink assertions observed together from a single HTTP response, Linkset document (RFC 9264), HTML document, or XML Sitemap."@en ;
+    skos:editorialNote "Draft extension candidate for review: enables attaching observation provenance (e.g., dcterms:source, prov:generatedAtTime) at the set level rather than repeating it on every rtwl:WebLink."@en .
+
+
+# -----------------------------------------------------------------------------
+# Properties — WebLink Core
+# -----------------------------------------------------------------------------
+
+rtwl:anchor
+    a rdf:Property, owl:ObjectProperty ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "anchor"@en ;
+    rdfs:comment "The link context / anchor resource (RFC 8288 Section 3.2) from which the web link originates."@en ;
+    rdfs:domain rtwl:WebLink ;
+    rdfs:range rdfs:Resource .
+
+rtwl:href
+    a rdf:Property, owl:ObjectProperty ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "href"@en ;
+    rdfs:comment "The target resource IRI (RFC 8288 Section 3.1) to which the web link points."@en ;
+    rdfs:domain rtwl:WebLink ;
+    rdfs:range rdfs:Resource .
+
+rtwl:rel
+    a rdf:Property ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "relation type"@en ;
+    rdfs:comment "The link relation type (RFC 8288 Section 2.1): either an IANA-registered relation token literal (e.g., \"alternate\", \"profile\") or an extension relation IRI (e.g., <http://schema.org/hasPart>)."@en ;
+    rdfs:domain rtwl:WebLink ;
+    skos:editorialNote "Design review point: intentionally typed as rdf:Property (RDFS) rather than owl:ObjectProperty or owl:DatatypeProperty because RFC 8288 permits both short string tokens and full extension IRIs. If strict OWL 2 DL compliance is required, split into an IRI-only rtwl:rel (with IANA URIs) or separate rtwl:relToken / rtwl:relUri properties."@en .
+
+rtwl:attribute
+    a rdf:Property, owl:ObjectProperty ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "target attribute"@en ;
+    rdfs:comment "Links a reified rtwl:WebLink to an rtwl:TargetAttribute key-value node qualifying its target."@en ;
+    rdfs:domain rtwl:WebLink ;
+    rdfs:range rtwl:TargetAttribute .
+
+
+# -----------------------------------------------------------------------------
+# Properties — TargetAttribute Key/Value
+# -----------------------------------------------------------------------------
+
+rtwl:key
+    a rdf:Property, owl:DatatypeProperty ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "attribute key"@en ;
+    rdfs:comment "The parameter name of a target attribute (e.g., \"type\", \"profile\", \"hreflang\", \"title\")."@en ;
+    rdfs:domain rtwl:TargetAttribute ;
+    rdfs:range xsd:string .
+
+rtwl:value
+    a rdf:Property ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "attribute value"@en ;
+    rdfs:comment "The value of a target attribute: a literal (such as a media type \"text/turtle\" or language-tagged title) or a resource IRI (such as a profile URI)."@en ;
+    rdfs:domain rtwl:TargetAttribute ;
+    skos:editorialNote "Design review point: intentionally typed as rdf:Property (RDFS) rather than owl:DatatypeProperty/owl:ObjectProperty so attributes like \"profile\" can hold an IRI directly while \"type\" holds an xsd:string literal."@en .
+
+
+# -----------------------------------------------------------------------------
+# Properties — Linkset Grouping (Draft Extension Candidate)
+# -----------------------------------------------------------------------------
+
+rtwl:link
+    a rdf:Property, owl:ObjectProperty ;
+    rdfs:isDefinedBy <https://w3id.org/rt/ns/weblink> ;
+    rdfs:label "contains link"@en ;
+    rdfs:comment "Associates a rtwl:Linkset observation container with one of its member rtwl:WebLink instances."@en ;
+    rdfs:domain rtwl:Linkset ;
+    rdfs:range rtwl:WebLink ;
+    skos:editorialNote "Draft extension candidate for review alongside rtwl:Linkset."@en .

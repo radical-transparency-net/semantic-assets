@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radical Transparency Web Linking Vocabulary (rtwl) — v0.1.0-draft</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <!-- RT-P03 self-describing identity anchor, alternates, and variant menu linksets -->
+  <link rel="self" href="https://w3id.org/rt/ns/weblink" />
+  <link rel="alternate" type="text/turtle" href="weblink.ttl" title="Turtle serialization" />
+  <link rel="alternate" type="application/ld+json" href="weblink.jsonld" title="JSON-LD serialization" />
+  <link rel="linkset" type="application/linkset+json" href="weblink.linkset.json" title="RT-P03 Content Negotiation Menu (JSON)" />
+  <link rel="linkset" type="application/linkset" href="weblink.linkset" title="RT-P03 Content Negotiation Menu (Text)" />
+  <style>
+    :root {
+      --bg: #f8f9ff;
+      --surface: #ffffff;
+      --ink: #0b1c30;
+      --muted: #45464d;
+      --border: #d3e4fe;
+      --accent: #0051d5;
+      --warn-bg: #eff4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    header img { width: 68px; height: 68px; flex-shrink: 0; }
+    h1 { margin: 0 0 0.25rem 0; font-size: 1.65rem; letter-spacing: -0.02em; }
+    .meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    code, pre {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.86rem;
+    }
+    code {
+      background: #eff4ff;
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+    }
+    pre {
+      background: #0b1c30;
+      color: #eaf1ff;
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+    .pill {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #eff4ff;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.84rem;
+    }
+    .pill:hover { background: #dbe1ff; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.6rem 0.7rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th { background: #eff4ff; font-weight: 700; }
+    .term {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    .term:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+    .term h3 {
+      margin: 0 0 0.35rem 0;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tag {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.72rem;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      background: #eff4ff;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .tag.draft { background: #fff4e5; color: #8a4b00; border-color: #f3d19e; }
+    .note {
+      background: var(--warn-bg);
+      border-left: 4px solid var(--accent);
+      padding: 0.85rem 1.1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      margin-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="../assets/rt-logo.svg" alt="Radical Transparency Network" width="68" height="68" />
+      <div>
+        <h1>Radical Transparency Web Linking Vocabulary (<code>rtwl:</code>)</h1>
+        <p class="meta">
+          Version <code>0.1.0-draft</code> · Namespace: <code>https://w3id.org/rt/ns/weblink#</code> · License: CC BY 4.0
+        </p>
+        <div class="pill-row">
+          <a class="pill" href="weblink.ttl">Turtle (weblink.ttl)</a>
+          <a class="pill" href="weblink.jsonld">JSON-LD (weblink.jsonld)</a>
+          <a class="pill" href="weblink.linkset.json">Linkset JSON (RT-P03)</a>
+          <a class="pill" href="weblink.linkset">Linkset Text (RT-P03)</a>
+          <a class="pill" href="examples/observed-links.ttl">Example (observed-links.ttl)</a>
+          <a class="pill" href="https://radical-transparency-net.github.io/spec-linkset-usage-patterns/">RT Linkset Usage Patterns</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Overview</h2>
+      <p>
+        Neither <a href="https://www.rfc-editor.org/info/rfc8288">RFC 8288 (Web Linking)</a> nor <a href="https://www.rfc-editor.org/info/rfc9264">RFC 9264 (Linksets)</a> defines a normative RDF reification vocabulary for web links and their target attributes. <code>rtwl:</code> provides a minimal, lossless data model to record observed links factually without inventing non-existent terms under existing W3C namespaces.
+      </p>
+      <p>
+        Following <strong>RT-P03 (Content Negotiation Menu)</strong>, the persistent namespace URI <code>https://w3id.org/rt/ns/weblink</code> exposes an explicit <a href="weblink.linkset.json">JSON linkset</a> and <a href="weblink.linkset">text linkset</a> listing all available formats and preserving <code>rel="self"</code> identity backlinks across redirects.
+      </p>
+      <div class="note">
+        <strong>Open Design Review Points (v0.1.0-draft):</strong>
+        <ol style="margin: 0.4rem 0 0 1.2rem; padding: 0;">
+          <li><strong>RDFS vs. OWL 2 DL for <code>rtwl:rel</code> &amp; <code>rtwl:value</code>:</strong> Currently typed as flexible <code>rdf:Property</code> so both string literals (<code>"alternate"</code>, <code>"text/turtle"</code>) and IRIs (<code>&lt;http://schema.org/hasPart&gt;</code>, profile URIs) are valid. Decide whether strict OWL 2 DL separation is needed.</li>
+          <li><strong><code>rtwl:Linkset</code> &amp; <code>rtwl:link</code>:</strong> Included as optional draft terms for attaching observation provenance (e.g., <code>dcterms:source</code>) to a harvested set of links.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Vocabulary Summary</h2>
+      <table>
+        <thead>
+          <tr><th>Term</th><th>Kind</th><th>Domain &rarr; Range</th><th>Summary</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="#WebLink"><code>rtwl:WebLink</code></a></td><td>Class</td><td>&mdash;</td><td>Reified RFC 8288 typed web link</td></tr>
+          <tr><td><a href="#TargetAttribute"><code>rtwl:TargetAttribute</code></a></td><td>Class</td><td>&mdash;</td><td>Key-value target parameter (RFC 8288 §3.4)</td></tr>
+          <tr><td><a href="#Linkset"><code>rtwl:Linkset</code></a></td><td>Class (draft)</td><td>&mdash;</td><td>Provenance container of observed links</td></tr>
+          <tr><td><a href="#anchor"><code>rtwl:anchor</code></a></td><td>ObjectProperty</td><td><code>WebLink</code> &rarr; <code>rdfs:Resource</code></td><td>Context / anchor resource URI</td></tr>
+          <tr><td><a href="#href"><code>rtwl:href</code></a></td><td>ObjectProperty</td><td><code>WebLink</code> &rarr; <code>rdfs:Resource</code></td><td>Target resource URI</td></tr>
+          <tr><td><a href="#rel"><code>rtwl:rel</code></a></td><td>rdf:Property</td><td><code>WebLink</code> &rarr; Token or IRI</td><td>IANA relation token or extension IRI</td></tr>
+          <tr><td><a href="#attribute"><code>rtwl:attribute</code></a></td><td>ObjectProperty</td><td><code>WebLink</code> &rarr; <code>TargetAttribute</code></td><td>Attaches target attributes</td></tr>
+          <tr><td><a href="#key"><code>rtwl:key</code></a></td><td>DatatypeProperty</td><td><code>TargetAttribute</code> &rarr; <code>xsd:string</code></td><td>Target parameter name</td></tr>
+          <tr><td><a href="#value"><code>rtwl:value</code></a></td><td>rdf:Property</td><td><code>TargetAttribute</code> &rarr; Literal or IRI</td><td>Target parameter value</td></tr>
+          <tr><td><a href="#link"><code>rtwl:link</code></a></td><td>ObjectProperty (draft)</td><td><code>Linkset</code> &rarr; <code>WebLink</code></td><td>Groups links within an observation set</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Classes</h2>
+      <div class="term" id="WebLink">
+        <h3><code>rtwl:WebLink</code> <span class="tag">owl:Class</span></h3>
+        <p>A reified representation of an observed typed web link as defined by RFC 8288 (anchor, link relation, target URI, and optional target attributes).</p>
+      </div>
+      <div class="term" id="TargetAttribute">
+        <h3><code>rtwl:TargetAttribute</code> <span class="tag">owl:Class</span></h3>
+        <p>A key-value attribute qualifying a reified <code>rtwl:WebLink</code> target, corresponding to an RFC 8288 Section 3.4 link-param (e.g., <code>type</code>, <code>profile</code>, <code>hreflang</code>, <code>title</code>).</p>
+      </div>
+      <div class="term" id="Linkset">
+        <h3><code>rtwl:Linkset</code> <span class="tag draft">owl:Class · draft candidate</span></h3>
+        <p>A collection of reified <code>rtwl:WebLink</code> assertions observed together from a single HTTP response, Linkset document (RFC 9264), HTML document, or XML Sitemap.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Properties</h2>
+      <div class="term" id="anchor">
+        <h3><code>rtwl:anchor</code> <span class="tag">owl:ObjectProperty</span></h3>
+        <p>Domain: <code>rtwl:WebLink</code> · Range: <code>rdfs:Resource</code>. The link context / anchor resource (RFC 8288 §3.2) from which the link originates.</p>
+      </div>
+      <div class="term" id="href">
+        <h3><code>rtwl:href</code> <span class="tag">owl:ObjectProperty</span></h3>
+        <p>Domain: <code>rtwl:WebLink</code> · Range: <code>rdfs:Resource</code>. The target resource IRI (RFC 8288 §3.1) to which the link points.</p>
+      </div>
+      <div class="term" id="rel">
+        <h3><code>rtwl:rel</code> <span class="tag">rdf:Property</span></h3>
+        <p>Domain: <code>rtwl:WebLink</code>. Either an IANA-registered relation token literal (e.g., <code>"alternate"</code>) or an extension relation IRI (e.g., <code>&lt;http://schema.org/hasPart&gt;</code>).</p>
+      </div>
+      <div class="term" id="attribute">
+        <h3><code>rtwl:attribute</code> <span class="tag">owl:ObjectProperty</span></h3>
+        <p>Domain: <code>rtwl:WebLink</code> · Range: <code>rtwl:TargetAttribute</code>. Links a reified web link to its target attribute nodes.</p>
+      </div>
+      <div class="term" id="key">
+        <h3><code>rtwl:key</code> <span class="tag">owl:DatatypeProperty</span></h3>
+        <p>Domain: <code>rtwl:TargetAttribute</code> · Range: <code>xsd:string</code>. Parameter name of the target attribute (e.g., <code>"type"</code>, <code>"profile"</code>).</p>
+      </div>
+      <div class="term" id="value">
+        <h3><code>rtwl:value</code> <span class="tag">rdf:Property</span></h3>
+        <p>Domain: <code>rtwl:TargetAttribute</code>. Value of the target attribute: either a literal (e.g., <code>"text/turtle"</code>) or an IRI (e.g., a profile URI).</p>
+      </div>
+      <div class="term" id="link">
+        <h3><code>rtwl:link</code> <span class="tag draft">owl:ObjectProperty · draft candidate</span></h3>
+        <p>Domain: <code>rtwl:Linkset</code> · Range: <code>rtwl:WebLink</code>. Associates a <code>rtwl:Linkset</code> observation container with a member <code>rtwl:WebLink</code>.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Example (Turtle)</h2>
+      <pre>@prefix rtwl: &lt;https://w3id.org/rt/ns/weblink#&gt; .
+
+[] a rtwl:WebLink ;
+   rtwl:anchor &lt;https://example.org/resource&gt; ;
+   rtwl:rel "alternate" ;
+   rtwl:href &lt;https://example.org/resource.ttl&gt; ;
+   rtwl:attribute [
+       a rtwl:TargetAttribute ;
+       rtwl:key "type" ;
+       rtwl:value "text/turtle"
+   ] , [
+       a rtwl:TargetAttribute ;
+       rtwl:key "profile" ;
+       rtwl:value &lt;https://example.org/profiles/marine-ctd-v2&gt;
+   ] .</pre>
+    </section>
+  </div>
+</body>
+</html>

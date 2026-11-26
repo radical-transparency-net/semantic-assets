@@ -1,0 +1,33 @@
+# Example: Reifying observed RFC 8288 / RFC 9264 links with rtwl:
+
+@prefix rtwl:    <https://w3id.org/rt/ns/weblink#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# 1. Core pattern from RT Linkset Usage Patterns (Section 5):
+#    Representing an observed rel="alternate" link with type and profile attributes.
+[] a rtwl:WebLink ;
+   rtwl:anchor <https://example.org/resource> ;
+   rtwl:rel "alternate" ;
+   rtwl:href <https://example.org/resource.ttl> ;
+   rtwl:attribute [
+       a rtwl:TargetAttribute ;
+       rtwl:key "type" ;
+       rtwl:value "text/turtle"
+   ] , [
+       a rtwl:TargetAttribute ;
+       rtwl:key "profile" ;
+       rtwl:value <https://example.org/profiles/marine-ctd-v2>
+   ] .
+
+# 2. Extension relation IRI and Linkset observation container with provenance:
+[] a rtwl:Linkset ;
+   dcterms:source <https://example.org/profiles/marine-ctd-v2.linkset.json> ;
+   prov:generatedAtTime "2026-11-25T12:00:00Z"^^xsd:dateTime ;
+   rtwl:link [
+       a rtwl:WebLink ;
+       rtwl:anchor <https://example.org/profiles/marine-ctd-v2> ;
+       rtwl:rel <http://schema.org/hasPart> ;
+       rtwl:href <https://example.org/profiles/base-tabular-v1>
+   ] .
