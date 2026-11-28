@@ -11,6 +11,7 @@ Thumbs.db
 /index.html
 /sitemap-semantic-assets.xml
 /*/*.jsonld
+/*/examples/*.jsonld
 /*/*.linkset
 /*/*.linkset.json
 /*/index.html

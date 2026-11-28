@@ -9,6 +9,7 @@
   <link rel="self" href="{{ vocab.concept_uri }}" />
   <link rel="alternate" type="text/turtle" href="{{ vocab.slug }}.ttl" title="Turtle serialization" />
   <link rel="alternate" type="application/ld+json" href="{{ vocab.slug }}.jsonld" title="JSON-LD serialization" />
+  <link rel="http://www.w3.org/ns/json-ld#context" type="application/ld+json" href="{{ vocab.slug }}.context.jsonld" title="JSON-LD Context ({{ vocab.prefix }}:)" />
   <link rel="linkset" type="application/linkset+json" href="{{ vocab.slug }}.linkset.json" title="RT-P03 Content Negotiation Menu (JSON)" />
   <link rel="linkset" type="application/linkset" href="{{ vocab.slug }}.linkset" title="RT-P03 Content Negotiation Menu (Text)" />
   <style>
@@ -155,10 +156,12 @@
         <div class="pill-row">
           <a class="pill" href="{{ vocab.slug }}.ttl">Turtle ({{ vocab.slug }}.ttl)</a>
           <a class="pill" href="{{ vocab.slug }}.jsonld">JSON-LD ({{ vocab.slug }}.jsonld)</a>
+          <a class="pill" href="{{ vocab.slug }}.context.jsonld">JSON-LD Context ({{ vocab.slug }}.context.jsonld)</a>
           <a class="pill" href="{{ vocab.slug }}.linkset.json">Linkset JSON (RT-P03)</a>
           <a class="pill" href="{{ vocab.slug }}.linkset">Linkset Text (RT-P03)</a>
           {%- for ex in vocab.examples %}
           <a class="pill" href="{{ ex.rel_path }}">Example ({{ ex.filename }})</a>
+          <a class="pill" href="{{ ex.jsonld_rel_path }}">Example ({{ ex.jsonld_filename }})</a>
           {%- endfor %}
           {%- for ref in vocab.see_also %}
           {%- if "spec-linkset-usage-patterns" in ref %}
@@ -256,8 +259,10 @@
     <section class="card">
       <h2>Examples</h2>
       {%- for ex in vocab.examples %}
-      <h3><a href="{{ ex.rel_path }}"><code>{{ ex.rel_path }}</code></a></h3>
+      <h3><a href="{{ ex.rel_path }}"><code>{{ ex.rel_path }}</code></a> (Turtle)</h3>
       <pre>{{ ex.content }}</pre>
+      <h3><a href="{{ ex.jsonld_rel_path }}"><code>{{ ex.jsonld_rel_path }}</code></a> (JSON-LD via <code>{{ vocab.slug }}.context.jsonld</code>)</h3>
+      <pre>{{ ex.jsonld_content }}</pre>
       {%- endfor %}
     </section>
     {%- endif %}

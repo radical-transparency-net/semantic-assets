@@ -14,8 +14,10 @@ Single source of truth:
 
 Generated artifacts:
   <vocab>/<vocab>.jsonld
+  <vocab>/<vocab>.context.jsonld
   <vocab>/<vocab>.linkset.json
   <vocab>/<vocab>.linkset
+  <vocab>/examples/*.jsonld
   <vocab>/index.html
   index.html
   sitemap-semantic-assets.xml
@@ -28,11 +30,13 @@ import html
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
-from rdflib import Graph, Namespace, RDF, RDFS, OWL, XSD
+from rdflib import BNode, Graph, Literal, Namespace, RDF, RDFS, OWL, URIRef, XSD
+from rdflib.compare import isomorphic
 from rdflib.namespace import DCTERMS, SKOS
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -117,11 +121,167 @@ def build_jsonld(g: Graph, ontology_uri: str, prefix: str, ns_uri: str) -> str:
     return json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
 
 
+def build_context_dict(vocab_data: dict[str, Any]) -> dict[str, Any]:
+    """Build the JSON-LD 1.1 @context mapping dictionary for a vocabulary."""
+    ctx: dict[str, Any] = {
+        "@version": 1.1,
+        vocab_data["prefix"]: vocab_data["namespace_uri"],
+        "xsd": str(XSD),
+    }
+    for cls in vocab_data["classes"]:
+        ctx[cls["local_name"]] = cls["qname"]
+    for prop in vocab_data["properties"]:
+        if prop["kind_tag"] == "owl:ObjectProperty":
+            ctx[prop["local_name"]] = {"@id": prop["qname"], "@type": "@id"}
+        else:
+            ctx[prop["local_name"]] = prop["qname"]
+    return ctx
+
+
+def build_context_jsonld(vocab_data: dict[str, Any]) -> str:
+    """Generate a deterministic JSON-LD 1.1 @context document for instance data."""
+    return json.dumps({"@context": build_context_dict(vocab_data)}, indent=2, ensure_ascii=False) + "\n"
+
+
+def build_example_jsonld(
+    ex_g: Graph,
+    vocab_data: dict[str, Any],
+    vocab_ctx: dict[str, Any],
+    source_name: str,
+) -> str:
+    """Compile a Turtle example into nested JSON-LD using @context and assert RDF isomorphism."""
+    ns_uri = vocab_data["namespace_uri"]
+    context_url = f"{vocab_data['concept_uri']}.context.jsonld"
+
+    term_map: dict[str, str] = {}
+    id_terms: set[str] = set()
+    for cls in vocab_data["classes"]:
+        term_map[cls["uri"]] = cls["local_name"]
+    for prop in vocab_data["properties"]:
+        term_map[prop["uri"]] = prop["local_name"]
+        if prop["kind_tag"] == "owl:ObjectProperty":
+            id_terms.add(prop["local_name"])
+
+    # Collect bound prefixes used in non-rdf:type positions outside vocab_ctx
+    extra_ctx: dict[str, str] = {}
+    used_uris: set[str] = set()
+    for s, p, o in ex_g:
+        if isinstance(s, URIRef):
+            used_uris.add(str(s))
+        if p != RDF.type:
+            used_uris.add(str(p))
+        if isinstance(o, URIRef) and p != RDF.type:
+            used_uris.add(str(o))
+        elif isinstance(o, Literal) and o.datatype:
+            used_uris.add(str(o.datatype))
+
+    for pfx, ns in sorted(ex_g.namespaces(), key=lambda x: x[0]):
+        ns_s = str(ns)
+        if not pfx or pfx in vocab_ctx:
+            continue
+        if any(u.startswith(ns_s) for u in used_uris):
+            extra_ctx[pfx] = ns_s
+
+    def compact_ref(uri_str: str) -> str:
+        if uri_str in term_map:
+            return term_map[uri_str]
+        if uri_str.startswith(ns_uri):
+            return f"{vocab_data['prefix']}:{uri_str[len(ns_uri):]}"
+        if uri_str.startswith(str(XSD)):
+            return f"xsd:{uri_str[len(str(XSD)):]}"
+        for pfx, ns_s in sorted(extra_ctx.items(), key=lambda kv: -len(kv[1])):
+            if uri_str.startswith(ns_s):
+                return f"{pfx}:{uri_str[len(ns_s):]}"
+        return uri_str
+
+    bnode_refs: Counter[BNode] = Counter()
+    for _, _, o in ex_g:
+        if isinstance(o, BNode):
+            bnode_refs[o] += 1
+
+    # Assign deterministic labels only to blank nodes referenced multiple times
+    shared_bnode_ids: dict[BNode, str] = {}
+
+    def shared_bnode_id(bnode: BNode) -> str:
+        if bnode not in shared_bnode_ids:
+            shared_bnode_ids[bnode] = f"_:b{len(shared_bnode_ids)}"
+        return shared_bnode_ids[bnode]
+
+    def serialize_obj(pred_term: str, obj: Any) -> Any:
+        if isinstance(obj, BNode):
+            if bnode_refs[obj] == 1:
+                return serialize_node(obj)
+            return {"@id": shared_bnode_id(obj)}
+        if isinstance(obj, URIRef):
+            if pred_term in id_terms:
+                return str(obj)
+            return {"@id": str(obj)}
+        if isinstance(obj, Literal):
+            if obj.language:
+                return {"@value": str(obj), "@language": obj.language}
+            if obj.datatype and str(obj.datatype) != str(XSD.string):
+                return {"@value": str(obj), "@type": compact_ref(str(obj.datatype))}
+            return str(obj)
+        return str(obj)
+
+    def serialize_node(subj: Any) -> dict[str, Any]:
+        node: dict[str, Any] = {}
+        if isinstance(subj, URIRef):
+            node["@id"] = str(subj)
+        elif isinstance(subj, BNode) and bnode_refs[subj] > 1:
+            node["@id"] = shared_bnode_id(subj)
+
+        types = sorted(compact_ref(str(t)) for t in ex_g.objects(subj, RDF.type))
+        if types:
+            node["@type"] = types[0] if len(types) == 1 else types
+
+        by_pred: dict[str, list[Any]] = {}
+        for p, o in ex_g.predicate_objects(subj):
+            if p == RDF.type:
+                continue
+            p_term = compact_ref(str(p))
+            by_pred.setdefault(p_term, []).append(serialize_obj(p_term, o))
+
+        for p_term in sorted(by_pred.keys(), key=lambda k: (0 if k in term_map.values() else 1, k)):
+            vals = sorted(by_pred[p_term], key=lambda v: json.dumps(v, sort_keys=True))
+            node[p_term] = vals[0] if len(vals) == 1 else vals
+        return node
+
+    roots = [
+        s for s in set(ex_g.subjects())
+        if not (isinstance(s, BNode) and bnode_refs[s] == 1)
+    ]
+
+    def root_sort_key(node: dict[str, Any]) -> tuple[int, str]:
+        t = node.get("@type", "")
+        rank = 0 if t == "WebLink" else (1 if t == "Linkset" else 2)
+        return (rank, json.dumps(node, sort_keys=True))
+
+    graph_nodes = sorted((serialize_node(r) for r in roots), key=root_sort_key)
+    ctx_ref: Any = [context_url, extra_ctx] if extra_ctx else context_url
+    doc = {"@context": ctx_ref, "@graph": graph_nodes}
+
+    # Verify lossless round-trip against the local context dictionary
+    roundtrip_doc = {
+        "@context": [vocab_ctx, extra_ctx] if extra_ctx else vocab_ctx,
+        "@graph": graph_nodes,
+    }
+    g_roundtrip = Graph().parse(data=json.dumps(roundtrip_doc), format="json-ld")
+    if not isomorphic(g_roundtrip, ex_g):
+        raise ValueError(
+            f"{source_name}: JSON-LD round-trip failed RDF isomorphism check "
+            f"({len(g_roundtrip)} vs {len(ex_g)} triples)."
+        )
+
+    return json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
+
+
 def build_linksets(slug: str, concept_uri: str, base_url: str) -> tuple[str, str]:
     """Generate RFC 9264 application/linkset+json and application/linkset for RT-P03."""
     vocab_base = f"{base_url.rstrip('/')}/{slug}"
     ttl_url = f"{vocab_base}/{slug}.ttl"
     jsonld_url = f"{vocab_base}/{slug}.jsonld"
+    context_url = f"{vocab_base}/{slug}.context.jsonld"
     html_url = f"{vocab_base}/index.html"
     ls_json_url = f"{concept_uri}.linkset.json"
     ls_text_url = f"{concept_uri}.linkset"
@@ -139,6 +299,9 @@ def build_linksets(slug: str, concept_uri: str, base_url: str) -> tuple[str, str
                     {"href": ttl_url, "type": "text/turtle; charset=utf-8"},
                     {"href": jsonld_url, "type": "application/ld+json"},
                     {"href": html_url, "type": "text/html; charset=utf-8"},
+                ],
+                "http://www.w3.org/ns/json-ld#context": [
+                    {"href": context_url, "type": "application/ld+json"},
                 ],
                 "linkset": linkset_refs,
             },
@@ -166,6 +329,7 @@ def build_linksets(slug: str, concept_uri: str, base_url: str) -> tuple[str, str
         f'<{ttl_url}>\n   ; rel="alternate"\n   ; type="text/turtle; charset=utf-8"\n   ; anchor="{concept_uri}"',
         f'<{jsonld_url}>\n   ; rel="alternate"\n   ; type="application/ld+json"\n   ; anchor="{concept_uri}"',
         f'<{html_url}>\n   ; rel="alternate"\n   ; type="text/html; charset=utf-8"\n   ; anchor="{concept_uri}"',
+        f'<{context_url}>\n   ; rel="http://www.w3.org/ns/json-ld#context"\n   ; type="application/ld+json"\n   ; anchor="{concept_uri}"',
         f'<{ls_json_url}>\n   ; rel="linkset"\n   ; type="application/linkset+json"\n   ; anchor="{concept_uri}"',
         f'<{ls_text_url}>\n   ; rel="linkset"\n   ; type="application/linkset"\n   ; anchor="{concept_uri}"',
         f'<{concept_uri}>\n   ; rel="self"\n   ; anchor="{ttl_url}"',
@@ -282,10 +446,15 @@ def parse_vocabulary(slug: str, ttl_path: Path, base_url: str) -> tuple[dict[str
         for ex_file in sorted(ex_dir.glob("*.ttl")):
             ex_g = Graph()
             ex_g.parse(ex_file, format="turtle")
+            jsonld_file = ex_file.with_suffix(".jsonld")
             examples.append({
                 "filename": ex_file.name,
                 "rel_path": f"examples/{ex_file.name}",
                 "content": ex_file.read_text(encoding="utf-8").rstrip(),
+                "jsonld_filename": jsonld_file.name,
+                "jsonld_rel_path": f"examples/{jsonld_file.name}",
+                "graph": ex_g,
+                "jsonld_path": jsonld_file,
             })
 
     license_uri = first_literal(g, ont_ref, DCTERMS.license)
@@ -399,6 +568,14 @@ def main() -> int:
         outputs[vocab_dir / f"{slug}.jsonld"] = build_jsonld(
             g, vocab_data["concept_uri"], vocab_data["prefix"], vocab_data["namespace_uri"]
         )
+        vocab_ctx = build_context_dict(vocab_data)
+        outputs[vocab_dir / f"{slug}.context.jsonld"] = (
+            json.dumps({"@context": vocab_ctx}, indent=2, ensure_ascii=False) + "\n"
+        )
+        for ex in vocab_data["examples"]:
+            ex_jsonld = build_example_jsonld(ex["graph"], vocab_data, vocab_ctx, ex["rel_path"])
+            outputs[ex["jsonld_path"]] = ex_jsonld
+            ex["jsonld_content"] = ex_jsonld.rstrip()
         ls_json, ls_text = build_linksets(slug, vocab_data["concept_uri"], args.base_url)
         outputs[vocab_dir / f"{slug}.linkset.json"] = ls_json
         outputs[vocab_dir / f"{slug}.linkset"] = ls_text

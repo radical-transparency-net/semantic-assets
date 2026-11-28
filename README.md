@@ -15,7 +15,7 @@ This repository is **source-only** (`*.ttl` as the single source of truth); all 
 
 - [`weblink/weblink.ttl`](weblink/weblink.ttl) & [`weblink/examples/`](weblink/examples/) — Authoritative Turtle source for `rtwl:` (`v0.1.0-draft`).
 - [`Makefile`](Makefile) — Primary task runner exposing `make` (help), `make <vocab>` (single-vocabulary build), `make all`, `make clean`, `make check`, and `make serve`.
-- [`scripts/build.py`](scripts/build.py) & [`scripts/templates/`](scripts/templates/) — Deterministic `uv` build pipeline (`rdflib` + `jinja2`) that validates all Turtle files and generates `.jsonld`, `.linkset.json`, `.linkset`, HTML pages (`weblink/index.html`, root `index.html`), and `sitemap-semantic-assets.xml`.
+- [`scripts/build.py`](scripts/build.py) & [`scripts/templates/`](scripts/templates/) — Deterministic `uv` build pipeline (`rdflib` + `jinja2`) that validates all Turtle files and generates `.jsonld`, `.context.jsonld`, `.linkset.json`, `.linkset`, `examples/*.jsonld` demonstrators, HTML pages (`weblink/index.html`, root `index.html`), and `sitemap-semantic-assets.xml`.
 - [`.github/workflows/build-and-deploy.yml`](.github/workflows/build-and-deploy.yml) — Runs `make all && make check` on pull requests and `main`, deploying the built site to GitHub Pages.
 - [`assets/`](assets/) — Official Radical Transparency monochrome lace logo and favicon.
 - [`.agents/rules/source-of-truth-and-build.md`](.agents/rules/source-of-truth-and-build.md) — Architectural policy and agent guidelines for source-only tracking.

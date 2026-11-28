@@ -7,7 +7,7 @@ BASE_URL ?= https://radical-transparency.net/semantic-assets
 
 # Auto-discover every vocabulary folder containing <vocab>/<vocab>.ttl
 VOCABS := $(sort $(foreach d,$(wildcard */),$(if $(wildcard $(d)$(patsubst %/,%,$(d)).ttl),$(patsubst %/,%,$(d)))))
-GENERATED_FILES := index.html sitemap-semantic-assets.xml $(foreach v,$(VOCABS),$(v)/$(v).jsonld $(v)/$(v).linkset $(v)/$(v).linkset.json $(v)/index.html)
+GENERATED_FILES := index.html sitemap-semantic-assets.xml $(foreach v,$(VOCABS),$(v)/$(v).jsonld $(v)/$(v).context.jsonld $(v)/$(v).linkset $(v)/$(v).linkset.json $(v)/index.html $(patsubst %.ttl,%.jsonld,$(wildcard $(v)/examples/*.ttl)))
 
 .PHONY: help all clean check serve $(VOCABS)
 

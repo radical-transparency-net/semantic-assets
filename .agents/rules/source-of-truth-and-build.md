@@ -11,7 +11,8 @@ This repository follows a strict **source-only tracking model (Option A)**.
   - `Makefile`, `.github/workflows/build-and-deploy.yml`, and documentation (`README.md`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.agents/rules/`)
 - **Derived build artifacts (`.gitignore`d, never committed):**
   - `index.html` and `<vocab>/index.html`
-  - `<vocab>/<vocab>.jsonld`
+  - `<vocab>/<vocab>.jsonld` and `<vocab>/<vocab>.context.jsonld`
+  - `<vocab>/examples/*.jsonld` (isomorphism-verified JSON-LD demonstrators)
   - `<vocab>/<vocab>.linkset.json` and `<vocab>/<vocab>.linkset`
   - `sitemap-semantic-assets.xml`
 
